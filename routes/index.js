@@ -71,13 +71,14 @@ router.post('/login', (req, res) => {
 router.post('/post', (req, res) => {
 	//get the logined userid from cookie
 	const userid = req.cookies.userid;
-	const {post_title, post_content, post_img} = req.body;
+	const {post_title,post_tags,post_content, post_imgURL} = req.body;
 
 	const postData = {
 		user_id:userid,
 		post_title:post_title,
+		post_tags:post_tags,
 		post_content:post_content,
-		post_img:post_img,
+		post_imgURL:post_imgURL,
 		read_total:0,
 		post_time:new Date()
 	}
@@ -89,7 +90,6 @@ router.post('/post', (req, res) => {
 		}
 		res.send({code:1,data:postData})
 	})
-
 
 })
 
