@@ -78,15 +78,23 @@ router.post('/post', (req, res) => {
 		post_title:post_title,
 		post_tags:post_tags,
 		post_content:post_content,
-		post_imgURL:post_imgURL,
+		post_imgURLs:post_imgURL,
 		read_total:0,
 		post_time:new Date()
 	}
 
+	console.log(postData);
+
 	new PostModel(postData).save((err,postDoc)=>{
 		const postData={
 			user_id:userid,
-			post_id:postDoc._id
+			post_id:postDoc._id,
+			cover_imgURL:postDoc.post_imgURLs[0],
+			post_title:postDoc.post_title,
+			post_tags:postDoc.post_tags,
+			post_content:postDoc.post_content,
+			post_time:postDoc.post_time,
+			read_total:postDoc.read_total
 		}
 		res.send({code:1,data:postData})
 	})

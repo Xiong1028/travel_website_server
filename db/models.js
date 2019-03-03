@@ -33,7 +33,7 @@ const postSchema = mongoose.Schema({
     post_title:{type:String,required:true},
     post_tags:{type:Array},
     post_content:{type:String, required:true},
-    post_img:{type:Array},
+    post_imgURLs:{type:Array},
     read_total:{type:Number},
     post_time:{type:Number}
 })
