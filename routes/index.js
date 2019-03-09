@@ -45,7 +45,7 @@ router.post('/register', (req, res) => {
 })
 
 
-//API for login
+// API for login
 router.post('/login', (req, res) => {
 	const {username, password} = req.body;
 
