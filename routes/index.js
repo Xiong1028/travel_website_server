@@ -161,4 +161,25 @@ router.post('/reset', (req, res) => {
 	})
 })
 
+router.post('/updateAva', (req, res) => {
+	//get uerid from cookie
+	const userid = req.cookies.userid;
+
+	if (!userid) {
+		return res.send({code: 0, msg: "Please Login"});
+	}
+
+	UserModel.findOne({_id: userid}, (err, userDoc) => {
+		console.log(userDoc);
+		if (userDoc) {
+			res.send({
+				code: 1,
+				data: userDoc.avatar
+			})
+		} else {
+			res.send({code:0, updAvaMsg: "Updata avatar fail!"})
+		}
+	})
+})
+
 module.exports = router;
