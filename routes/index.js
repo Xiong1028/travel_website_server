@@ -142,4 +142,23 @@ router.post('/profile', (req, res) => {
 	})
 })
 
+router.post('/reset', (req, res) => {
+	//get uerid from cookie
+	const userid = req.cookies.userid;
+
+	if (!userid) {
+		return res.send({code: 0, msg: "Please Login"});
+	}
+
+	const {password} = req.body;
+
+	UserModel.findOneAndUpdate({_id: userid}, {password: md5(password)}, (err, userDoc) => {
+		if (userDoc) {
+			res.send({code: 1, rstMsg: "Reset password success!"});
+		} else {
+			res.send({code: 0, rstMsg: "Reset password fail!"});
+		}
+	})
+})
+
 module.exports = router;
