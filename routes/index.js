@@ -84,13 +84,13 @@ router.post('/post', (req, res) => {
 		post_content: post_content,
 		post_imgURLs: post_imgURL,
 		read_total: 0,
+		view_number:0,
+		likes:0,
 		post_time: new Date()
 	}
 
-	console.log(postData);
-
 	new PostModel(postData).save((err, postDoc) => {
-		const postData = {
+		var resPostData = {
 			user_id: userid,
 			post_id: postDoc._id,
 			cover_imgURL: postDoc.post_imgURLs[0],
@@ -100,7 +100,14 @@ router.post('/post', (req, res) => {
 			post_time: postDoc.post_time,
 			read_total: postDoc.read_total
 		}
-		res.send({code: 1, data: postData})
+		UserModel.findById(userid,(err,userDoc)=>{
+			resPostData['username'] = userDoc.username;
+			resPostData['email'] = userDoc.email;
+			resPostData['avatar'] = userDoc.avatar;
+			console.log(resPostData);
+
+			res.send({code: 1, data: resPostData});
+		})
 	})
 
 })
@@ -125,7 +132,6 @@ router.post('/profile', upload.single('avatar'), (req, res, next) => {
 router.post('/profile', (req, res) => {
 	//get uerid from cookie
 	const userid = req.cookies.userid;
-
 	if (!userid) {
 		return res.send({code: 0, msg: "Please Login"});
 	}

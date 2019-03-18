@@ -35,7 +35,10 @@ const postSchema = mongoose.Schema({
     post_content:{type:String, required:true},
     post_imgURLs:{type:Array},
     read_total:{type:Number},
-    post_time:{type:Number}
+    view_number:{type:Number},
+    likes:{type:Number},
+    post_time:{type:Number},
+
 })
 
 const PostModel = mongoose.model('post',postSchema);
