@@ -83,8 +83,8 @@ router.post('/post', (req, res) => {
 		post_tags: post_tags,
 		post_content: post_content,
 		post_imgURLs: post_imgURL,
-		read_total: 0,
-		view_number:0,
+		comments: 0,
+		views:0,
 		likes:0,
 		post_time: new Date()
 	}
@@ -98,7 +98,9 @@ router.post('/post', (req, res) => {
 			post_tags: postDoc.post_tags,
 			post_content: postDoc.post_content,
 			post_time: postDoc.post_time,
-			read_total: postDoc.read_total
+			views: postDoc.views,
+			likes:postDoc.likes,
+			comments: postDoc.comments
 		}
 		UserModel.findById(userid,(err,userDoc)=>{
 			resPostData['username'] = userDoc.username;
