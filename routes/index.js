@@ -120,5 +120,8 @@ router.post('/profile', upload.single('avatar'), (req, res, next) => {
     })
 })
 
+//Api for get all cardList
+router.get('/fetchCards',)
+
 
 module.exports = router;
