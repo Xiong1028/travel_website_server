@@ -197,11 +197,24 @@ router.get('/fetchAll',(req,res)=>{
   })
 })
 
+
+//Api for get the article of specifical id
+router.get('/detail/:id',(req,res)=>{
+	let post_id = req.params.id;
+	
+	PostModel.findOne({_id:post_id},(err,postDoc)=>{
+		getOneUserData(postDoc,res);	
+	})	
+})
+
 module.exports = router;
+
+
 
 
 //====================functions below ========================
 
+//handle all posts data including users info
 async function processArray(postDocs,res){
 	let newCardList =[];
 		for(let item of postDocs){
@@ -225,6 +238,28 @@ async function processArray(postDocs,res){
 		}
 		console.log(newCardList);
 		res.send({code:1,data:newCardList});
+}
+
+//handle a article detail including user info
+async function getOneUserData(postDoc,res){
+	const userDoc = await processUserDoc(postDoc.user_id);
+	let articleData ={
+			user_id: postDoc.user_id,
+			post_id: postDoc._id,
+			cover_imgURL: postDoc.post_imgURLs[0],
+			post_title: postDoc.post_title,
+			post_tags: postDoc.post_tags,
+			post_content: postDoc.post_content,
+			post_time: postDoc.post_time,
+			views: postDoc.views,
+			likes:	postDoc.likes,
+			comments: postDoc.comments,
+			username:userDoc.username,
+			avatar:userDoc.avatar,
+			email:userDoc.email
+	};
+	console.log(articleData);
+	res.send(articleData);
 }
 
 async function processUserDoc(userId){
