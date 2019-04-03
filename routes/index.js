@@ -207,6 +207,17 @@ router.get('/detail/:id',(req,res)=>{
 	})	
 })
 
+
+//Api for get all the userList
+router.get('/userlist',(req,res)=>{
+	//get uerid from cookie
+	const userid = req.cookies.userid;
+
+	UserModel.find({_id:{$ne:userid}},filter,(err,users)=>{
+		res.send({code:1,data:users});
+	})
+})
+
 module.exports = router;
 
 
