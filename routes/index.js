@@ -45,6 +45,7 @@ router.post('/register', (req, res) => {
 			})
 		}
 	})
+	
 })
 
 
@@ -110,6 +111,8 @@ router.post('/post', (req, res) => {
 
 			res.send({code: 1, data: resPostData});
 		})
+
+	
 	})
 
 })
@@ -148,6 +151,7 @@ router.post('/profile', (req, res) => {
 		}
 		res.send({code: 1, data: resUserData});
 	})
+
 })
 
 router.post('/reset', (req, res) => {
@@ -229,8 +233,6 @@ router.get('/author/:user_id',(req,res)=>{
 		processArray(postDocs,res);
 	})
 })
-
-
 
 module.exports = router;
 
