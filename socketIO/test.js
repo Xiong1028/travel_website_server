@@ -12,7 +12,7 @@ module.exports = function(server){
        
         //send msg to the client
         io.emit('receiveMsg', data.name + '_' + data.date);
-        console.log('to the client: ' , data);
+        console.log('to the client: ', data);
         })
     })
 }
