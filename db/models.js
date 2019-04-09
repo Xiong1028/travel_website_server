@@ -61,6 +61,7 @@ const PostModel = mongoose.model('post',postSchema);
 exports.PostModel = PostModel;
 
 
+//msg Schema
 const chatSchema = mongoose.Schema({
     from:{type:String, required:true}, //sender_id
     to:{type:String,required:true},  //receiver_id

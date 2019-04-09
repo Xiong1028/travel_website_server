@@ -13,14 +13,13 @@ module.exports = function(server){
             //handle the data
             data.name = data.name.toUpperCase();
 
-            //send msg to the client
+            //send msg to the client. 
+            //socket.emit() only send the msg to the specific client
+            //io.emit() is broadcasting all the connected client
+    
             socket.emit("returnMsg", data);
             console.log("return msg to the client",data);
-
         })
-
-
-
     })
 
 }
