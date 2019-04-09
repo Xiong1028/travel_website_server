@@ -60,3 +60,15 @@ const postSchema = mongoose.Schema({
 const PostModel = mongoose.model('post',postSchema);
 exports.PostModel = PostModel;
 
+
+const chatSchema = mongoose.Schema({
+    from:{type:String, required:true}, //sender_id
+    to:{type:String,required:true},  //receiver_id
+    chat_id:{type:String,required:true}, //concate from and to
+    content:{type:String,required:true},
+    read:{type:Boolean,default:false}, // read msg or not
+    create_time:{type:Number}
+})
+
+const ChatModel = mongoose.model('chat',chatSchema);
+exports.ChatModel = ChatModel;

@@ -6,7 +6,7 @@ var fs = require("fs");
 var async = require("async");
 
 const md5 = require('blueimp-md5');
-const {UserModel, PostModel} = require('../db/models');
+const {UserModel, PostModel,ChatModel} = require('../db/models');
 
 
 //define a filter
@@ -212,7 +212,7 @@ router.get('/detail/:id',(req,res)=>{
 })
 
 
-//Api for get all the userList
+//Api for getting all the userList
 router.get('/userlist',(req,res)=>{
 	//get userid from cookie
 	const userid = req.cookies.userid;
@@ -224,7 +224,7 @@ router.get('/userlist',(req,res)=>{
 })
 
 
-//Api for get the user and get all the posts related to this user
+//Api for getting the user and get all the posts related to this user
 router.get('/author/:user_id',(req,res)=>{
 	//get user_id from the request path
 	let user_id = req.params.user_id;
@@ -233,6 +233,71 @@ router.get('/author/:user_id',(req,res)=>{
 		processArray(postDocs,res);
 	})
 })
+
+
+
+//Api for msglist
+router.get("/msglist",(req,res)=>{
+	//get cookie userid
+	const user_id = req.cookies.userid;
+
+	//query all the users 
+	UserModel.find((err,userDocs)=>{
+
+		//save all the users in an object by using user_id as key, name and avatar as value object
+		const users = {};
+
+		userDocs.forEach(doc=>{
+			users[doc._id] = {username:doc.username,avatar:doc.avatar};
+		})
+
+		/*
+			all chat history	related to user_id
+			parameter 1: query condition
+			parameter 2: filter condition
+			parameter 3: callback function
+		*/
+		ChatModel.find({'$or':[{from:user_id},{to:user_id}]},filter,(err,chatMsgs)=>{
+			//return an array with all msgs related to user_id
+			res.send({code:1,data:{users,chatMsgs}});
+		})
+
+	})
+})
+
+//Api for reading msg
+router.post("/readMsg",(req,res)=>{
+	//get the from and to
+	const from = req.body.from;
+	const to = req.cookies.userid;
+
+	/*
+		update the chat msg
+		@param1 query condition
+		@param2 update the designated object
+		@param3 update multiple msgs, default 1
+		@param4 callback
+	*/
+
+	ChatModel.update({from,to,read:false},{read:true},{multi:true},(err,doc)=>{
+		console.log("/readmsg",doc);
+		res.send({code:1,data:doc.nModified});
+	})
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 module.exports = router;
 
