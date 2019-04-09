@@ -286,22 +286,7 @@ router.post("/readMsg",(req,res)=>{
 })
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 module.exports = router;
-
-
 
 
 //====================functions below ========================
