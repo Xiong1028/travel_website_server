@@ -249,16 +249,24 @@ router.get('/author/:user_id',(req,res)=>{
 })
 
 
-//API for updating like number
+//API for updating likes number
 router.post('/updatelike', (req, res) => {
 	const { post_id, likes} = req.body;
 
 	PostModel.findOneAndUpdate({_id: post_id}, {likes: likes + 1}, (err, postDoc) => {
 		console.log(postDoc);
-		res.send({
-			code: 1,
-			data: postDoc.likes
-		})
+		
+		getOneUserData(postDoc,res);
+	})
+})
+
+
+//API for updating views number
+router.post('/updateview', (req, res) => {
+	const { post_id, views} = req.body;
+
+	PostModel.findOneAndUpdate({_id: post_id}, {views: views + 1}, (err, postDoc) => {
+		getOneUserData(postDoc,res);
 	})
 })
 
