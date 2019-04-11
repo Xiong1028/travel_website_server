@@ -221,19 +221,6 @@ router.get('/detail/:id',(req,res)=>{
 	})	
 })
 
-
-//Api for getting all the userList
-router.get('/userlist',(req,res)=>{
-	//get userid from cookie
-	const userid = req.cookies.userid;
-
-	//find all users except userid
-	UserModel.find({_id:{$ne:userid}},filter,(err,users)=>{
-		res.send({code:1,data:users});
-	})
-})
-
-
 //Api for getting the user and get all the posts related to this user
 router.get('/author/:user_id',(req,res)=>{
 	//get user_id from the request path
@@ -249,12 +236,8 @@ router.get('/author/:user_id',(req,res)=>{
 router.post('/updatelike', (req, res) => {
 	const { post_id, likes} = req.body;
 
-	PostModel.findOneAndUpdate({_id: post_id}, {likes: likes + 1}, (err, postDoc) => {
-		console.log(postDoc);
-		res.send({
-			code: 1,
-			data: postDoc.likes
-		})
+	PostModel.findOneAndUpdate({_id: post_id}, {likes: likes+1}, (err, postDoc) => {
+		getOneUserData(postDoc,res);
 	})
 })
 
@@ -308,7 +291,6 @@ router.post("/readmsg",(req,res)=>{
 		res.send({code:1,data:doc.nModified});
 	})
 })
-
 
 module.exports = router;
 
