@@ -110,8 +110,6 @@ router.post('/post', (req, res) => {
 
 			res.send({code: 1, data: resPostData});
 		})
-
-	
 	})
 
 })
@@ -208,14 +206,12 @@ router.post('/getuser',(req,res)=>{
 	})
 })
 
-
 //Api for all the post data
 router.get('/fetchAll',(req,res)=>{   
   PostModel.find({}).sort({'post_time':-1}).exec((err,postDocs)=>{
 			processArray(postDocs,res);
   })
 })
-
 
 //Api for get the article of specifical id
 router.get('/detail/:id',(req,res)=>{
@@ -271,6 +267,7 @@ router.get("/msglist",(req,res)=>{
 			parameter 2: filter condition
 			parameter 3: callback function
 		*/
+
 		ChatModel.find({'$or':[{from:user_id},{to:user_id}]},filter,(err,chatMsgs)=>{
 			//return an array with all msgs related to user_id
 			res.send({code:1,data:{users,chatMsgs}});
@@ -280,7 +277,7 @@ router.get("/msglist",(req,res)=>{
 })
 
 //Api for reading msg
-router.post("/readMsg",(req,res)=>{
+router.post("/readmsg",(req,res)=>{
 	//get the from and to
 	const from = req.body.from;
 	const to = req.cookies.userid;
@@ -303,7 +300,7 @@ router.post("/readMsg",(req,res)=>{
 module.exports = router;
 
 
-//====================functions below ========================
+//==================== functions below ========================
 
 //handle all posts data including users info
 async function processArray(postDocs,res){
