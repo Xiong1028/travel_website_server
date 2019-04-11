@@ -7,7 +7,16 @@
 
 //connect DB
 const mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost:27017/travel_website');
+
+mongoose.Promise = global.Promise;
+
+const options = {
+    db: {native_parser:true},
+    server: {poolSize:5}
+}
+
+mongoose.connect('mongodb://localhost:27017/travel_website', options);
+
 const conn = mongoose.connection;
 conn.on('connected',()=>{
     console.log('connect succ');
