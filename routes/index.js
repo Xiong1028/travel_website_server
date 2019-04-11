@@ -107,7 +107,6 @@ router.post('/post', (req, res) => {
 			resPostData['username'] = userDoc.username;
 			resPostData['email'] = userDoc.email;
 			resPostData['avatar'] = userDoc.avatar;
-			console.log(resPostData);
 
 			res.send({code: 1, data: resPostData});
 		})
@@ -182,7 +181,6 @@ router.post('/updateAva', (req, res) => {
 	}
 
 	UserModel.findOne({_id: userid}, (err, userDoc) => {
-		console.log(userDoc);
 		if (userDoc) {
 			res.send({
 				code: 1,
@@ -194,6 +192,23 @@ router.post('/updateAva', (req, res) => {
 	})
 })
 
+
+//Api for getting one user
+router.post('/getuser',(req,res)=>{
+	//get uerid from cookie
+	const userid = req.cookies.userid;
+
+	if (!userid) {
+		return res.send({code: 0, msg: "Please Login"});
+	}
+	UserModel.findOne({_id: userid},filter, (err, userDoc) => {
+		if (userDoc) {
+			res.send({code: 1,data: userDoc});
+		} 
+	})
+})
+
+
 //Api for all the post data
 router.get('/fetchAll',(req,res)=>{   
   PostModel.find({}).sort({'post_time':-1}).exec((err,postDocs)=>{
@@ -204,8 +219,7 @@ router.get('/fetchAll',(req,res)=>{
 
 //Api for get the article of specifical id
 router.get('/detail/:id',(req,res)=>{
-	let post_id = req.params.id;
-	
+	let post_id = req.params.id;	
 	PostModel.findOne({_id:post_id},(err,postDoc)=>{
 		getOneUserData(postDoc,res);	
 	})	
@@ -313,7 +327,6 @@ async function processArray(postDocs,res){
 			}
 			newCardList.push(newCard);
 		}
-		console.log(newCardList);
 		res.send({code:1,data:newCardList});
 }
 
@@ -335,7 +348,6 @@ async function getOneUserData(postDoc,res){
 			avatar:userDoc.avatar,
 			email:userDoc.email
 	};
-	console.log(articleData);
 	res.send(articleData);
 }
 
