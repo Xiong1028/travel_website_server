@@ -6,7 +6,7 @@ var fs = require("fs");
 var async = require("async");
 
 const md5 = require('blueimp-md5');
-const {UserModel, PostModel} = require('../db/models');
+const {UserModel, PostModel,ChatModel} = require('../db/models');
 
 
 //define a filter
@@ -45,6 +45,7 @@ router.post('/register', (req, res) => {
 			})
 		}
 	})
+	
 })
 
 
@@ -106,10 +107,11 @@ router.post('/post', (req, res) => {
 			resPostData['username'] = userDoc.username;
 			resPostData['email'] = userDoc.email;
 			resPostData['avatar'] = userDoc.avatar;
-			console.log(resPostData);
 
 			res.send({code: 1, data: resPostData});
 		})
+
+	
 	})
 
 })
@@ -148,6 +150,7 @@ router.post('/profile', (req, res) => {
 		}
 		res.send({code: 1, data: resUserData});
 	})
+
 })
 
 router.post('/reset', (req, res) => {
@@ -178,7 +181,6 @@ router.post('/updateAva', (req, res) => {
 	}
 
 	UserModel.findOne({_id: userid}, (err, userDoc) => {
-		console.log(userDoc);
 		if (userDoc) {
 			res.send({
 				code: 1,
@@ -190,6 +192,23 @@ router.post('/updateAva', (req, res) => {
 	})
 })
 
+
+//Api for getting one user
+router.post('/getuser',(req,res)=>{
+	//get uerid from cookie
+	const userid = req.cookies.userid;
+
+	if (!userid) {
+		return res.send({code: 0, msg: "Please Login"});
+	}
+	UserModel.findOne({_id: userid},filter, (err, userDoc) => {
+		if (userDoc) {
+			res.send({code: 1,data: userDoc});
+		} 
+	})
+})
+
+
 //Api for all the post data
 router.get('/fetchAll',(req,res)=>{   
   PostModel.find({}).sort({'post_time':-1}).exec((err,postDocs)=>{
@@ -200,15 +219,14 @@ router.get('/fetchAll',(req,res)=>{
 
 //Api for get the article of specifical id
 router.get('/detail/:id',(req,res)=>{
-	let post_id = req.params.id;
-	
+	let post_id = req.params.id;	
 	PostModel.findOne({_id:post_id},(err,postDoc)=>{
 		getOneUserData(postDoc,res);	
 	})	
 })
 
 
-//Api for get all the userList
+//Api for getting all the userList
 router.get('/userlist',(req,res)=>{
 	//get userid from cookie
 	const userid = req.cookies.userid;
@@ -220,7 +238,7 @@ router.get('/userlist',(req,res)=>{
 })
 
 
-//Api for get the user and get all the posts related to this user
+//Api for getting the user and get all the posts related to this user
 router.get('/author/:user_id',(req,res)=>{
 	//get user_id from the request path
 	let user_id = req.params.user_id;
@@ -245,9 +263,57 @@ router.post('/updatelike', (req, res) => {
 })
 
 
+//Api for msglist
+router.get("/msglist",(req,res)=>{
+	//get cookie userid
+	const user_id = req.cookies.userid;
+
+	//query all the users 
+	UserModel.find((err,userDocs)=>{
+
+		//save all the users in an object by using user_id as key, name and avatar as value object
+		const users = {};
+
+		userDocs.forEach(doc=>{
+			users[doc._id] = {username:doc.username,avatar:doc.avatar};
+		})
+
+		/*
+			all chat history	related to user_id
+			parameter 1: query condition
+			parameter 2: filter condition
+			parameter 3: callback function
+		*/
+		ChatModel.find({'$or':[{from:user_id},{to:user_id}]},filter,(err,chatMsgs)=>{
+			//return an array with all msgs related to user_id
+			res.send({code:1,data:{users,chatMsgs}});
+		})
+
+	})
+})
+
+//Api for reading msg
+router.post("/readMsg",(req,res)=>{
+	//get the from and to
+	const from = req.body.from;
+	const to = req.cookies.userid;
+
+	/*
+		update the chat msg
+		@param1 query condition
+		@param2 update the designated object
+		@param3 update multiple msgs, default 1
+		@param4 callback
+	*/
+
+	ChatModel.update({from,to,read:false},{read:true},{multi:true},(err,doc)=>{
+		console.log("/readmsg",doc);
+		res.send({code:1,data:doc.nModified});
+	})
+})
+
+
 module.exports = router;
-
-
 
 
 //====================functions below ========================
@@ -274,7 +340,6 @@ async function processArray(postDocs,res){
 			}
 			newCardList.push(newCard);
 		}
-		console.log(newCardList);
 		res.send({code:1,data:newCardList});
 }
 
@@ -296,7 +361,6 @@ async function getOneUserData(postDoc,res){
 			avatar:userDoc.avatar,
 			email:userDoc.email
 	};
-	console.log(articleData);
 	res.send(articleData);
 }
 
