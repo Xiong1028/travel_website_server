@@ -236,11 +236,7 @@ router.get('/author/:user_id',(req,res)=>{
 router.post('/updatelike', (req, res) => {
 	const { post_id} = req.body;
 
-<<<<<<< HEAD
 	PostModel.findOneAndUpdate({_id: post_id}, {$inc: {likes: 1}}, {new: true}, (err, postDoc) => {
-=======
-	PostModel.findOneAndUpdate({_id: post_id}, {likes: likes+1},{new:true}, (err, postDoc) => {
->>>>>>> 0133c9eff232ac3e7dfe2c738641a5035abf9a2d
 		getOneUserData(postDoc,res);
 	})
 })
@@ -250,11 +246,7 @@ router.post('/updatelike', (req, res) => {
 router.post('/updateview', (req, res) => {
 	const { post_id} = req.body;
 
-<<<<<<< HEAD
 	PostModel.findOneAndUpdate({_id: post_id}, {$inc: {views: 1}}, {new: true}, (err, postDoc) => {
-=======
-	PostModel.findOneAndUpdate({_id: post_id}, {$inc:{views:1}},{new:true},(err, postDoc) => {
->>>>>>> 0133c9eff232ac3e7dfe2c738641a5035abf9a2d
 		getOneUserData(postDoc,res);
 	})
 })
