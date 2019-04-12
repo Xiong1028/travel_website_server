@@ -70,3 +70,13 @@ const chatSchema = mongoose.Schema({
 
 const ChatModel = mongoose.model('chat',chatSchema);
 exports.ChatModel = ChatModel;
+
+
+//favorite articles Schema
+const favSchema = mongoose.Schema({
+    user_id: {type:String,required:true},
+    fav_list: {type:Array}
+})
+
+const FavModel = mongoose.model('fav',favSchema);
+exports.FavModel = FavModel;

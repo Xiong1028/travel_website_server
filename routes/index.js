@@ -6,7 +6,7 @@ var fs = require("fs");
 var async = require("async");
 
 const md5 = require('blueimp-md5');
-const {UserModel, PostModel,ChatModel} = require('../db/models');
+const {UserModel, PostModel,ChatModel, FavModel} = require('../db/models');
 
 
 //define a filter
@@ -251,11 +251,9 @@ router.get('/author/:user_id',(req,res)=>{
 
 //API for updating likes number
 router.post('/updatelike', (req, res) => {
-	const { post_id, likes} = req.body;
+	const { post_id} = req.body;
 
-	PostModel.findOneAndUpdate({_id: post_id}, {likes: likes + 1}, (err, postDoc) => {
-		console.log(postDoc);
-		
+	PostModel.findOneAndUpdate({_id: post_id}, {$inc: {likes: 1}}, {new: true}, (err, postDoc) => {
 		getOneUserData(postDoc,res);
 	})
 })
@@ -263,11 +261,40 @@ router.post('/updatelike', (req, res) => {
 
 //API for updating views number
 router.post('/updateview', (req, res) => {
-	const { post_id, views} = req.body;
+	const { post_id} = req.body;
 
-	PostModel.findOneAndUpdate({_id: post_id}, {views: views + 1}, (err, postDoc) => {
+	PostModel.findOneAndUpdate({_id: post_id}, {$inc: {views: 1}}, {new: true}, (err, postDoc) => {
 		getOneUserData(postDoc,res);
 	})
+})
+
+
+//API for saving favourite articles
+router.post('/savearticle', (req, res) => {
+	const { post_id, user_id } = req.body;
+
+	FavModel.findOne({user_id: user_id}, (err,favDoc) => {
+		if(favDoc) {
+			FavModel.update(
+				{user_id: user_id}, 
+				{$push: {fav_list: post_id}},
+				(err, favDoc) => {
+					res.send({
+						code: 1,
+						data: favDoc
+					});
+				}
+			)
+		} else {
+			const favData = {
+				user_id: user_id,
+				fav_list: [post_id]
+			}
+			new FavModel(favData).save((err, favDoc) => {
+				res.send({code: 1, data: favDoc});
+			})
+		}
+	})	
 })
 
 
@@ -363,7 +390,7 @@ async function getOneUserData(postDoc,res){
 			post_content: postDoc.post_content,
 			post_time: postDoc.post_time,
 			views: postDoc.views,
-			likes:	postDoc.likes,
+			likes: postDoc.likes,
 			comments: postDoc.comments,
 			username:userDoc.username,
 			avatar:userDoc.avatar,
