@@ -139,7 +139,7 @@ router.post('/profile', (req, res) => {
 	}
 	const {user_imgUrl} = req.body;
 
-	UserModel.findOneAndUpdate({_id: userid}, {avatar: user_imgUrl}, (err, userDoc) => {
+	UserModel.findOneAndUpdate({_id: userid}, {avatar: user_imgUrl},{new:true},(err, userDoc) => {
 		const resUserData = {
 			userid: userDoc._id,
 			username: userDoc.username,
@@ -232,11 +232,21 @@ router.get('/author/:user_id',(req,res)=>{
 })
 
 
-//API for updating like number
+//API for updating likes number
 router.post('/updatelike', (req, res) => {
 	const { post_id, likes} = req.body;
 
-	PostModel.findOneAndUpdate({_id: post_id}, {likes: likes+1}, (err, postDoc) => {
+	PostModel.findOneAndUpdate({_id: post_id}, {likes: likes+1},{new:true}, (err, postDoc) => {
+		getOneUserData(postDoc,res);
+	})
+})
+
+
+//API for updating views number
+router.post('/updateview', (req, res) => {
+	const { post_id} = req.body;
+
+	PostModel.findOneAndUpdate({_id: post_id}, {$inc:{views:1}},{new:true},(err, postDoc) => {
 		getOneUserData(postDoc,res);
 	})
 })
