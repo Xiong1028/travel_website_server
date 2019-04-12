@@ -110,8 +110,6 @@ router.post('/post', (req, res) => {
 
 			res.send({code: 1, data: resPostData});
 		})
-
-	
 	})
 
 })
@@ -141,7 +139,7 @@ router.post('/profile', (req, res) => {
 	}
 	const {user_imgUrl} = req.body;
 
-	UserModel.findOneAndUpdate({_id: userid}, {avatar: user_imgUrl}, (err, userDoc) => {
+	UserModel.findOneAndUpdate({_id: userid}, {avatar: user_imgUrl},{new:true},(err, userDoc) => {
 		const resUserData = {
 			userid: userDoc._id,
 			username: userDoc.username,
@@ -208,14 +206,12 @@ router.post('/getuser',(req,res)=>{
 	})
 })
 
-
 //Api for all the post data
 router.get('/fetchAll',(req,res)=>{   
   PostModel.find({}).sort({'post_time':-1}).exec((err,postDocs)=>{
 			processArray(postDocs,res);
   })
 })
-
 
 //Api for get the article of specifical id
 router.get('/detail/:id',(req,res)=>{
@@ -224,19 +220,6 @@ router.get('/detail/:id',(req,res)=>{
 		getOneUserData(postDoc,res);	
 	})	
 })
-
-
-//Api for getting all the userList
-router.get('/userlist',(req,res)=>{
-	//get userid from cookie
-	const userid = req.cookies.userid;
-
-	//find all users except userid
-	UserModel.find({_id:{$ne:userid}},filter,(err,users)=>{
-		res.send({code:1,data:users});
-	})
-})
-
 
 //Api for getting the user and get all the posts related to this user
 router.get('/author/:user_id',(req,res)=>{
@@ -253,7 +236,11 @@ router.get('/author/:user_id',(req,res)=>{
 router.post('/updatelike', (req, res) => {
 	const { post_id} = req.body;
 
+<<<<<<< HEAD
 	PostModel.findOneAndUpdate({_id: post_id}, {$inc: {likes: 1}}, {new: true}, (err, postDoc) => {
+=======
+	PostModel.findOneAndUpdate({_id: post_id}, {likes: likes+1},{new:true}, (err, postDoc) => {
+>>>>>>> 0133c9eff232ac3e7dfe2c738641a5035abf9a2d
 		getOneUserData(postDoc,res);
 	})
 })
@@ -263,7 +250,11 @@ router.post('/updatelike', (req, res) => {
 router.post('/updateview', (req, res) => {
 	const { post_id} = req.body;
 
+<<<<<<< HEAD
 	PostModel.findOneAndUpdate({_id: post_id}, {$inc: {views: 1}}, {new: true}, (err, postDoc) => {
+=======
+	PostModel.findOneAndUpdate({_id: post_id}, {$inc:{views:1}},{new:true},(err, postDoc) => {
+>>>>>>> 0133c9eff232ac3e7dfe2c738641a5035abf9a2d
 		getOneUserData(postDoc,res);
 	})
 })
@@ -319,6 +310,7 @@ router.get("/msglist",(req,res)=>{
 			parameter 2: filter condition
 			parameter 3: callback function
 		*/
+
 		ChatModel.find({'$or':[{from:user_id},{to:user_id}]},filter,(err,chatMsgs)=>{
 			//return an array with all msgs related to user_id
 			res.send({code:1,data:{users,chatMsgs}});
@@ -328,7 +320,7 @@ router.get("/msglist",(req,res)=>{
 })
 
 //Api for reading msg
-router.post("/readMsg",(req,res)=>{
+router.post("/readmsg",(req,res)=>{
 	//get the from and to
 	const from = req.body.from;
 	const to = req.cookies.userid;
@@ -347,11 +339,10 @@ router.post("/readMsg",(req,res)=>{
 	})
 })
 
-
 module.exports = router;
 
 
-//====================functions below ========================
+//==================== functions below ========================
 
 //handle all posts data including users info
 async function processArray(postDocs,res){
