@@ -281,6 +281,18 @@ router.post('/savearticle', (req, res) => {
 })
 
 
+//API for getting favorite articles List info
+router.get('/favorite/:user_id', (req, res) => {
+	//get user_id from the request path
+	let user_id = req.params.user_id;
+
+	FavModel.find({user_id:user_id},(err,favDocs)=>{
+		const favList = favDocs.fav_list;
+		processFavArray(favList, res);
+	})
+})
+
+
 //Api for msglist
 router.get("/msglist",(req,res)=>{
 	//get cookie userid
@@ -391,6 +403,45 @@ function getUser(userId){
 	return new Promise((resolve,reject)=>{
 		UserModel.findOne({_id: userId},(err,userDoc)=>{
 				resolve(userDoc);
+		})
+	})
+}
+
+//handle all favorite ariticle data including article post and author info
+async function processFavArray(favList, res){
+	let newFavCardList =[];
+		for(let item of favList){
+			postData = await processPostDoc(item.post_id);
+			usrData = await processUserDoc(postData.user_id);
+			const newFavCard={
+				post_id: item.post_id,
+				user_id: postData.user_id,
+				post_title: postData.post_title,
+				post_tags: postData.post_tags,
+				cover_imgURL: postData.post_imgURLs[0],
+				post_content: postData.post_content,
+				post_time: postData.post_time,
+				views: postData.views,
+				likes:	postData.likes,
+				comments: postData.comments,
+				username:usrData.username,
+				avatar:usrData.avatar,
+				email:usrData.email
+			}
+			newFavCardList.push(newFavCard);
+		}
+		res.send({code:1,data:newFavCardList});
+}
+
+async function processPostDoc(postId){
+	let postData = await getPost(postId);
+	return postData;
+}
+
+function getPost(postId){
+	return new Promise((resolve,reject)=>{
+		PostModel.findOne({_id: postId},(err,postDoc)=>{
+				resolve(postDoc);
 		})
 	})
 }
