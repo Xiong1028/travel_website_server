@@ -6,7 +6,7 @@ var fs = require("fs");
 var async = require("async");
 
 const md5 = require('blueimp-md5');
-const {UserModel, PostModel,ChatModel} = require('../db/models');
+const {UserModel, PostModel,ChatModel, FavModel} = require('../db/models');
 
 
 //define a filter
@@ -234,9 +234,9 @@ router.get('/author/:user_id',(req,res)=>{
 
 //API for updating likes number
 router.post('/updatelike', (req, res) => {
-	const { post_id, likes} = req.body;
+	const { post_id} = req.body;
 
-	PostModel.findOneAndUpdate({_id: post_id}, {likes: likes+1},{new:true}, (err, postDoc) => {
+	PostModel.findOneAndUpdate({_id: post_id}, {$inc: {likes: 1}}, {new: true}, (err, postDoc) => {
 		getOneUserData(postDoc,res);
 	})
 })
@@ -246,8 +246,49 @@ router.post('/updatelike', (req, res) => {
 router.post('/updateview', (req, res) => {
 	const { post_id} = req.body;
 
-	PostModel.findOneAndUpdate({_id: post_id}, {$inc:{views:1}},{new:true},(err, postDoc) => {
+	PostModel.findOneAndUpdate({_id: post_id}, {$inc: {views: 1}}, {new: true}, (err, postDoc) => {
 		getOneUserData(postDoc,res);
+	})
+})
+
+
+//API for saving favourite articles
+router.post('/savearticle', (req, res) => {
+	const { post_id, user_id } = req.body;
+
+	FavModel.findOne({user_id: user_id}, (err,favDoc) => {
+		if(favDoc) {
+			FavModel.update(
+				{user_id: user_id}, 
+				{$push: {fav_list: post_id}},
+				(err, favDoc) => {
+					res.send({
+						code: 1,
+						data: favDoc
+					});
+				}
+			)
+		} else {
+			const favData = {
+				user_id: user_id,
+				fav_list: [post_id]
+			}
+			new FavModel(favData).save((err, favDoc) => {
+				res.send({code: 1, data: favDoc});
+			})
+		}
+	})	
+})
+
+
+//API for getting favorite articles List info
+router.get('/favorite/:user_id', (req, res) => {
+	//get user_id from the request path
+	let user_id = req.params.user_id;
+
+	FavModel.find({user_id:user_id},(err,favDocs)=>{
+		const favList = favDocs.fav_list;
+		processFavArray(favList, res);
 	})
 })
 
@@ -344,7 +385,7 @@ async function getOneUserData(postDoc,res){
 			post_content: postDoc.post_content,
 			post_time: postDoc.post_time,
 			views: postDoc.views,
-			likes:	postDoc.likes,
+			likes: postDoc.likes,
 			comments: postDoc.comments,
 			username:userDoc.username,
 			avatar:userDoc.avatar,
@@ -362,6 +403,45 @@ function getUser(userId){
 	return new Promise((resolve,reject)=>{
 		UserModel.findOne({_id: userId},(err,userDoc)=>{
 				resolve(userDoc);
+		})
+	})
+}
+
+//handle all favorite ariticle data including article post and author info
+async function processFavArray(favList, res){
+	let newFavCardList =[];
+		for(let item of favList){
+			postData = await processPostDoc(item.post_id);
+			usrData = await processUserDoc(postData.user_id);
+			const newFavCard={
+				post_id: item.post_id,
+				user_id: postData.user_id,
+				post_title: postData.post_title,
+				post_tags: postData.post_tags,
+				cover_imgURL: postData.post_imgURLs[0],
+				post_content: postData.post_content,
+				post_time: postData.post_time,
+				views: postData.views,
+				likes:	postData.likes,
+				comments: postData.comments,
+				username:usrData.username,
+				avatar:usrData.avatar,
+				email:usrData.email
+			}
+			newFavCardList.push(newFavCard);
+		}
+		res.send({code:1,data:newFavCardList});
+}
+
+async function processPostDoc(postId){
+	let postData = await getPost(postId);
+	return postData;
+}
+
+function getPost(postId){
+	return new Promise((resolve,reject)=>{
+		PostModel.findOne({_id: postId},(err,postDoc)=>{
+				resolve(postDoc);
 		})
 	})
 }
