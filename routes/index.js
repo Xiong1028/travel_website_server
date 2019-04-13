@@ -256,25 +256,28 @@ router.post('/updateview', (req, res) => {
 router.post('/savearticle', (req, res) => {
 	const { post_id, user_id } = req.body;
 
-	FavModel.findOne({user_id: user_id}, (err,favDoc) => {
-		if(favDoc) {
-			FavModel.update(
-				{user_id: user_id}, 
-				{$push: {fav_list: post_id}},
-				(err, favDoc) => {
-					res.send({
-						code: 1,
-						data: favDoc
-					});
-				}
-			)
+	FavModel.findOne({user_id: user_id}, (err,favDocs) => {
+		if(favDocs) {
+			// if post_id dosen't exist in fav_list, push post_id
+			if(!favDocs.fav_list.includes(post_id)){
+				FavModel.update(
+					{user_id: user_id}, 
+					{$push: {fav_list: post_id}},
+					(err, favDocs) => {
+						res.send({
+							code: 1,
+							data: favDocs
+						});
+					}
+				)
+			}
 		} else {
 			const favData = {
 				user_id: user_id,
 				fav_list: [post_id]
 			}
-			new FavModel(favData).save((err, favDoc) => {
-				res.send({code: 1, data: favDoc});
+			new FavModel(favData).save((err, favDocs) => {
+				res.send({code: 1, data: favDocs});
 			})
 		}
 	})	
@@ -287,8 +290,8 @@ router.get('/favorite/:user_id', (req, res) => {
 	let user_id = req.params.user_id;
 
 	FavModel.find({user_id:user_id},(err,favDocs)=>{
-		const favList = favDocs.fav_list;
-		processFavArray(favList, res);
+		console.log(favDocs);
+		processFavArray(favDocs, res);
 	})
 })
 
@@ -408,13 +411,14 @@ function getUser(userId){
 }
 
 //handle all favorite ariticle data including article post and author info
-async function processFavArray(favList, res){
+async function processFavArray(favDocs, res){
 	let newFavCardList =[];
+	let favList = favDocs[0].fav_list;
 		for(let item of favList){
-			postData = await processPostDoc(item.post_id);
+			postData = await processPostDoc(item);
 			usrData = await processUserDoc(postData.user_id);
 			const newFavCard={
-				post_id: item.post_id,
+				post_id: item,
 				user_id: postData.user_id,
 				post_title: postData.post_title,
 				post_tags: postData.post_tags,
