@@ -264,7 +264,7 @@ router.get("/msglist",(req,res)=>{
 		const users = {};
 
 		userDocs.forEach(doc=>{
-			users[doc._id] = {username:doc.username,avatar:doc.avatar};
+			users[doc._id] = {user_id:doc._id,username:doc.username,avatar:doc.avatar};
 		})
 
 		/*
