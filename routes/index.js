@@ -340,11 +340,10 @@ router.post("/readmsg",(req,res)=>{
 	*/
 
 	ChatModel.update({from,to,read:false},{read:true},{multi:true},(err,doc)=>{
-		ChatModel.find({read:false},(err,chatDocs)=>{
+		ChatModel.find({to,read:false},{new:true},(err,chatDocs)=>{
 			console.log(chatDocs.length);
-		})
-		console.log("/readmsg",doc);
-		res.send({code:1,data:doc.nModified});
+			res.send({code:1,data:chatDocs.length});
+		})	
 	})
 })
 
