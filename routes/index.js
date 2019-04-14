@@ -290,7 +290,6 @@ router.get('/favorite/:user_id', (req, res) => {
 	let user_id = req.params.user_id;
 
 	FavModel.find({user_id:user_id},(err,favDocs)=>{
-		console.log(favDocs);
 		processFavArray(favDocs, res);
 	})
 })
@@ -341,10 +340,14 @@ router.post("/readmsg",(req,res)=>{
 	*/
 
 	ChatModel.update({from,to,read:false},{read:true},{multi:true},(err,doc)=>{
+		ChatModel.find({read:false},(err,chatDocs)=>{
+			console.log(chatDocs.length);
+		})
 		console.log("/readmsg",doc);
 		res.send({code:1,data:doc.nModified});
 	})
 })
+
 
 module.exports = router;
 
@@ -436,6 +439,7 @@ async function processFavArray(favDocs, res){
 		}
 		res.send({code:1,data:newFavCardList});
 }
+
 
 async function processPostDoc(postId){
 	let postData = await getPost(postId);
